@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 命名空间  防止多个文件 中id重复冲突 -->
+<mapper namespace="TX">
+
+  <resultMap type="yk.po.TX" id="TXResult">
+    <id column="id" jdbcType="INTEGER" property="id"/>
+    <result column="name" jdbcType="VARCHAR" property="name"/>
+  </resultMap>
+
+  <!-- 普通单条查询 -->
+  <select id="query"  resultMap="TXResult">
+    <!-- select id , name from tx -->
+    <!-- 用常量注入 -->
+    select <include refid="columns"/> from tx
+  </select>
+  
+  <!-- 参数查询 -->
+  <select id="queryParam" parameterType="yk.po.TX"  resultMap="TXResult">
+    select id , name from tx where 1=1
+    <!-- #{} 匹配成 ? 及要查找的值 -->
+    <if test="name !=null">and name = #{name}</if>
+    <!-- %与 #{} 直接要有空格   -->
+    <!-- <if test="name !=null">and name like '%' #{name} '%'</if> -->
+  </select>
+  
+  <!-- where标签查询 自动判断是否添加 where 和 and  -->
+  <select id="queryWhere"  resultMap="TXResult">
+    select id,name from tx
+    <where>
+    	<if test="id != null">
+    		and id = #{id}
+    	</if>
+    	<if test="name != null">
+    		and name = #{name}
+    	</if>
+    </where>
+    
+    <!-- 其他标签 set 与where用法相似， tirm choose标签需要也可用 -->
+  </select>
+  
+  
+  <!-- 删除一个 -->
+  <delete id="deleteOne" parameterType="int">
+  <!-- 八种基本数据类型都得写 _parameter -->
+  	delete from tx where id = #{_parameter}
+  </delete>
+  
+  <!-- 批量删除 -->
+  <delete id="deleteBatch" parameterType="java.util.List">
+  	delete from tx where id in(
+  		<foreach collection="list" item="item" separator=",">
+  			#{item}
+  		</foreach>
+  	)
+  </delete>
+  
+  <!-- 增加 -->
+  <insert id="insertOne" parameterType="yk.po.TX">
+  	insert into tx values(null,#{name})
+  </insert>
+  
+  <!-- 更新 -->
+  <update id="updateOne" parameterType="yk.po.TX">
+  	update tx set name = #{name} where id= #{id}
+  </update>
+  
+  <!-- sql标签 定义常量 -->
+  <sql id="columns">id , name</sql>
+  
+  <!-- ${} 原样替换参数 没有?与'' 可以用作动态排序  order by ${ id} 直接替换成 order by id -->
+  
+  
+</mapper>
